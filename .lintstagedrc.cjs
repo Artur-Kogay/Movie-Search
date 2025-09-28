@@ -1,5 +1,4 @@
-const buildEslintCommand = (filenames) =>
-  `eslint --fix --ext .js,.ts,.jsx,.tsx ${filenames.map((f) => `"${f}"`).join(' ')}`;
+const buildEslintCommand = (filenames) => `eslint --fix ${filenames.join(' ')}`;
 
 module.exports = {
   '*.{js,ts,jsx,tsx}': [buildEslintCommand, 'prettier --write'],
