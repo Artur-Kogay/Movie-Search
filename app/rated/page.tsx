@@ -1,30 +1,24 @@
-import {cookies} from 'next/headers';
-import MovieList from '../components/MovieList/MovieList'
-import PaginationComponent from '../components/PaginationComponent/PaginationComponent'
-import { SearchParams } from 'next/dist/server/request/search-params'
-import { getRatedMovies } from '../api/Movies/getRatedMovies'
+import { cookies } from 'next/headers';
+import MovieList from '../components/MovieList/MovieList';
+import { getRatedMovies } from '../api/Movies/getRatedMovies';
+import { getAllGenres } from '../api/getAllGenres/getAllGenres';
 
-interface Props {
-    searchParams: Promise<SearchParams>
-}
+const RatedPage = async () => {
+  const coockieStore = await cookies();
+  const guestSessionId = coockieStore.get('guestId')?.value;
 
-const RatedPage = async ({ searchParams }: Props) => {
+  if (!guestSessionId) throw new Error('No guest session');
 
-    const currentPage = Number((await searchParams).page) || 1;
+  const moviesData = await getRatedMovies(guestSessionId);
 
-    const coockieStore = await cookies();
-    const guestSessionId = coockieStore.get("guestId")?.value;
+  const genres = await getAllGenres();
+  const genresData = genres.genres || [];
 
-    if(!guestSessionId) throw new Error('No guest session')
+  return (
+    <>
+      <MovieList moviesData={moviesData.results} genresData={genresData} />
+    </>
+  );
+};
 
-    const moviesData = await getRatedMovies(guestSessionId, currentPage)
-
-    return (
-        <>
-            <MovieList moviesData={moviesData.results} />
-            <PaginationComponent path={'/rated'} currentPage={currentPage} total={500} />
-        </>
-    )
-}
-
-export default RatedPage
+export default RatedPage;
